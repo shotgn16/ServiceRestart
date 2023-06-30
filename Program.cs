@@ -1,63 +1,89 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.ServiceProcess;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using System.ServiceProcess;
 
-namespace serviceRestart
+namespace ServiceRestart_Net_7
 {
     internal class Program
     {
-        public static void restartService(string serviceName, int timeOutMS)
+        static async Task Main(string[] args)
         {
-            ServiceController service = new ServiceController(serviceName);
-
-            TimeSpan timeout = TimeSpan.FromMilliseconds(timeOutMS);
-
-            try
+            using (var ServiceClass = new CustomServiceManager())
             {
-                //If service is stopped...
-                if (service.Status == ServiceControllerStatus.Stopped)
-                {
-                    service.Start();
+                var Controller = await ServiceClass.BuildController("MyQ_Sharp", 30);
 
-                    service.WaitForStatus(ServiceControllerStatus.Running, timeout);
-
-                    MessageBox.Show($"The service '{serviceName}', has been successfully started!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-
-                //If service is Running...
-                else if (service.Status == ServiceControllerStatus.Running)
-                {
-                    service.Stop();
-                    service.WaitForStatus(ServiceControllerStatus.Stopped, timeout);
-
-                    service.Start();
-                    service.WaitForStatus(ServiceControllerStatus.Running, timeout);
-
-                    MessageBox.Show($"The service '{serviceName}', has been successfully restarted!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-            }
-
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                if (await ServiceClass.restartService(Controller))
+                    Console.WriteLine($"Service.{Controller.ServiceName} restarted successfully!");
             }
         }
+    }
 
-        static void Main(string[] args)
+    internal class CustomServiceManager : IDisposable
+    {
+        private ServiceController _serviceController;
+        private TimeSpan _timeout;
+
+        internal async Task<bool> IsValid(object input, bool returnValue = false)
+        {
+            if (input.GetType() == typeof(string))
+            {
+                if (!string.IsNullOrEmpty(Convert.ToString(input)))
+                    returnValue = true;
+            }
+
+            else if (input.GetType() == typeof(Int32))
+            {
+                if (Convert.ToInt32(input) != 0)
+                    returnValue = true;
+            }
+
+            return returnValue;
+        }
+
+        internal async Task<ServiceController> BuildController(string serviceName, int timeoutMS, ServiceController returnValue = null)
+        {
+            if (await IsValid(serviceName) && await IsValid(timeoutMS))
+            {
+                _serviceController = new ServiceController(serviceName);
+                    _timeout = TimeSpan.FromSeconds(timeoutMS);
+                returnValue = _serviceController;
+            }
+
+            return returnValue;
+        }
+
+        internal async Task<bool> restartService(ServiceController _ServiceController, bool returnValue = false)
         {
             try
             {
-                restartService("MyQ_Sharp", 30000);
+                if (_ServiceController.Status == ServiceControllerStatus.Stopped)
+                {
+                    _ServiceController.Start();
+                        _ServiceController.WaitForStatus(ServiceControllerStatus.Running, _timeout);
+                    returnValue = true;
+                }
+
+                else if (_ServiceController.Status == ServiceControllerStatus.Running)
+                {
+                    _ServiceController.Stop();
+                        _ServiceController.WaitForStatus(ServiceControllerStatus.Stopped, _timeout);
+
+                    _ServiceController.Start();
+                        _ServiceController.WaitForStatus(ServiceControllerStatus.Running, _timeout);
+
+                    returnValue = true;
+                }
             }
 
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Console.WriteLine("Error: " + ex.Message + ex.StackTrace);
             }
+
+            return returnValue;
+        }
+
+        public void Dispose()
+        {
+            GC.Collect();
         }
     }
 }

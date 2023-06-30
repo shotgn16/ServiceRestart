@@ -1,2 +1,0 @@
-# MyQ_ServiceRestart
- 

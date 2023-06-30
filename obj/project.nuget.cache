@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "LiTvehwXQOBZPQCpEkR1fAlAsL1EKHYFSfmx7zuX2H+UYdQWPkHbiz7Jkhh6TC0FN9OwB8PbgqVOUQu5e2sJeg==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\JackBarnard\\source\\repos\\ServiceRestart-Net-7\\ServiceRestart-Net-7.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\JackBarnard\\.nuget\\packages\\system.diagnostics.eventlog\\7.0.0\\system.diagnostics.eventlog.7.0.0.nupkg.sha512",
+    "C:\\Users\\JackBarnard\\.nuget\\packages\\system.serviceprocess.servicecontroller\\7.0.1\\system.serviceprocess.servicecontroller.7.0.1.nupkg.sha512"
+  ],
+  "logs": []
+}
