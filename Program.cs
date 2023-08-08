@@ -51,7 +51,7 @@ namespace serviceRestart
         {
             try
             {
-                restartService("MyQ_Sharp", 30000);
+                restartService("SERVICE_NAME", 30000);
             }
 
             catch (Exception ex)
